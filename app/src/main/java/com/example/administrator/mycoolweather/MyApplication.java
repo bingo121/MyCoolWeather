@@ -15,7 +15,7 @@ import okhttp3.OkHttpClient;
  */
 
 public class MyApplication extends Application {
-    public  static Context context;
+    private   static Context context;
     @Override
     public void onCreate() {
         super.onCreate();

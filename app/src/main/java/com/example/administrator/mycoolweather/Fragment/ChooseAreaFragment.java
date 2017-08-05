@@ -2,6 +2,7 @@ package com.example.administrator.mycoolweather.Fragment;
 
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.administrator.mycoolweather.R;
+import com.example.administrator.mycoolweather.activity.MainActivity;
+import com.example.administrator.mycoolweather.activity.WeatherActivity;
 import com.example.administrator.mycoolweather.db.City;
 import com.example.administrator.mycoolweather.db.County;
 import com.example.administrator.mycoolweather.db.Province;
@@ -88,6 +91,7 @@ public class ChooseAreaFragment extends Fragment {
         View view = inflater.inflate(R.layout.choose_area,container,false);
         titleText = (TextView) view.findViewById(R.id.title_text);
         backButton = (Button) view.findViewById(R.id.back_button);
+
         listView = (ListView) view.findViewById(R.id.list_view);
         adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
@@ -103,9 +107,22 @@ public class ChooseAreaFragment extends Fragment {
                 if(currentLevel==LEVEL_PROVINCE){
                         selectProvince = provinceList.get(position);
                         queryCites();
-                    }else if(currentLevel==LEVEL_CITY){
-                        selectCity = cityList.get(position);
-                        queryCounties();
+                    }else if(currentLevel==LEVEL_CITY) {
+                    selectCity = cityList.get(position);
+                    queryCounties();
+                }else if(currentLevel==LEVEL_COOUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    if(getActivity() instanceof MainActivity) {
+                        Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                        intent.putExtra("weather_id", weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if(getActivity() instanceof  WeatherActivity){
+                        WeatherActivity activity = (WeatherActivity) getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
                 }
             }
         });
@@ -191,7 +208,7 @@ public class ChooseAreaFragment extends Fragment {
     }
 
     /**
-     * 根据传入的地址和类型
+     * 根据传入的地址和类型去服务器上查询
      * @param address
      * @param type
      */
